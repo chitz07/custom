@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * @file
+ * Allows site admin to set siteapikey variable and also provides a JSON representation of a basic page. 
+ */
+
+use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function axl_custom_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the etv_custom module.
+    case 'help.page.axl_custom':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Custom module for axl website.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ * 
+ * Adds a new field to the Site information settings form.
+ */
+function axl_custom_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $default_api_key = 'No API Key yet';
+  $site_api_key = \Drupal::config('axl_custom.settings')->get('siteapikey'); 
+  if ($site_api_key != '') {
+    $default_api_key = $site_api_key;
+    $form['actions']['submit']['#value'] = t('Update configuration');
+  }
+
+  if ($form_id == 'system_site_information_settings') {    
+    $form['site_api_details'] = [
+      '#type' => 'details',
+      '#title' => t('Site details'),
+      '#open' => TRUE,
+    ];    
+    $form['site_api_details']['api_key'] = [
+      '#type' => 'textfield',
+      '#title' => t('Site API Key'),
+      '#default_value' => $default_api_key,
+      '#maxlength' => 255,
+      '#size' => 40,
+    ];
+   // Add a custom submit handler to save the value of site_api_key.
+   $form['actions']['submit']['#submit'][] = 'axl_custom_save_site_api_key_submit';
+  }
+}
+
+/**
+ * Custom submit handler.
+ * Sets the siteapikey variable from user input.
+ */
+function axl_custom_save_site_api_key_submit(array $form, FormStateInterface $form_state) {
+  $site_api_key = $form_state->getValue(array('api_key'));
+  $config = \Drupal::service('config.factory')->getEditable('axl_custom.settings');
+  $config->set('siteapikey', $site_api_key)
+  ->save();
+  if ($site_api_key != '') {
+    drupal_set_message("Value for Site api key is set as " . $site_api_key);
+  }
+}

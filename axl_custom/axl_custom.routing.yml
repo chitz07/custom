@@ -1,0 +1,7 @@
+axl_custom.page_json:
+  path: '/page_json/{api_key}/{node_id}'
+  defaults:
+    _controller: '\Drupal\axl_custom\Controller\AxlCustomController::jsonPage'
+    _title: 'JSON representation of a basic page'
+  requirements:
+    _permission: 'access content'

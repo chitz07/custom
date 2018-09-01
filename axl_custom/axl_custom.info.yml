@@ -1,0 +1,7 @@
+name: 'Custom'
+type: module
+description: 'Custom module to alter the settings form and to provide JSON format of any basic page.'
+core: 8.x
+package: 'Custom'
+dependencies:
+  - serialization
